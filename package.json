@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,6 +16,7 @@
   "packageManager": "pnpm@10.24.0",
   "dependencies": {
     "@tanstack/react-query": "^5.90.11",
+    "axios": "^1.13.2",
     "next": "^16.0.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
