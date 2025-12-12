@@ -1,6 +1,10 @@
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
 const API_VERSION = '/api/v1';
+const API_BASE_URL_WITH_VERSION = `${API_BASE_URL}${API_VERSION}`;
+
 export const API_ROUTES = {
-    USERS: `${API_VERSION}/users`,
+    USERS: `${API_BASE_URL_WITH_VERSION}/users`,
+    DOCUMENTS: `${API_BASE_URL_WITH_VERSION}/documents`,
 };
 
 export const APP_PATHS = {
