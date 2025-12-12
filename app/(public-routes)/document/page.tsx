@@ -36,9 +36,11 @@ export default function UploadPage() {
             // Step 2: Upload file directly to S3
             const uploadResponse = await axios.put(
                 response.data.presigned_url,
+                file,
                 {
-                    method: 'PUT',
-                    body: file,
+                    headers: {
+                        'Content-Type': file.type,
+                    },
                 }
             );
             console.log('Upload response:', uploadResponse);
