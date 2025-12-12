@@ -4,23 +4,35 @@ import { useState } from 'react';
 import axios from 'axios';
 import { API_ROUTES } from '@/constants/api';
 
+interface IParsePayload {
+    file_name: string;
+    mime_type: string;
+    file_size: number;
+    file_url: string;
+}
+
 export default function UploadPage() {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState('');
-    const [uploadedUrl, setUploadedUrl] = useState('');
+
+    const parseUploadedFile = (filePayload: IParsePayload) => {
+        return axios.post(`${API_ROUTES.DOCUMENTS}/parse`, filePayload);
+    };
 
     const uploadFile = async () => {
         if (!file) return alert('Please choose a file first');
 
         try {
             // Step 1: Get presigned URL
-            const response = await axios.get(
-                `${
-                    API_ROUTES.DOCUMENTS
-                }/generate-upload-url?fileName=${encodeURIComponent(file.name)}`
+            const payload = {
+                file_name: file.name,
+                mime_type: file.type,
+                file_size: file.size,
+            };
+            const response = await axios.post(
+                `${API_ROUTES.DOCUMENTS}/generate-signed-url`,
+                payload
             );
-            console.log('DATA: ', response.data);
-
             // Step 2: Upload file directly to S3
             const uploadResponse = await axios.put(
                 response.data.presigned_url,
@@ -29,8 +41,12 @@ export default function UploadPage() {
                     body: file,
                 }
             );
-            console.log('UPLOAD RESPONSE', uploadResponse);
+            console.log('Upload response:', uploadResponse);
             setStatus('File uploaded successfully!');
+            return parseUploadedFile({
+                ...payload,
+                file_url: response.data.file_url,
+            });
         } catch (error) {
             console.error('Error:', error);
             setStatus('Upload failed!');
@@ -55,19 +71,6 @@ export default function UploadPage() {
             </button>
 
             {status && <p className="mt-4 text-gray-700">{status}</p>}
-
-            {uploadedUrl && (
-                <p className="mt-4">
-                    <strong>Uploaded File URL:</strong>{' '}
-                    <a
-                        className="text-blue-600 underline"
-                        href={uploadedUrl}
-                        target="_blank"
-                    >
-                        {uploadedUrl}
-                    </a>
-                </p>
-            )}
         </div>
     );
 }
