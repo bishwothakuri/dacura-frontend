@@ -16,9 +16,10 @@ export default function ChatPDFLayout() {
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+    const [searching, setSearching] = useState(false);
 
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState<
+    const [chatMessages, setChatMessages] = useState<
         { text: string; sender: 'user' | 'bot' }[]
     >([]);
 
@@ -47,7 +48,6 @@ export default function ChatPDFLayout() {
                     'Content-Type': file.type,
                 },
             });
-            console.log('Res data=>', response.data);
             const { file_key, file_url } = response.data;
             setUploadedFiles([...uploadedFiles, file_key]);
             setUploading(false);
@@ -67,9 +67,53 @@ export default function ChatPDFLayout() {
     };
 
     const handleSendMessage = () => {
-        if (message.trim()) {
-            setMessages([...messages, { text: message, sender: 'user' }]);
-            setMessage('');
+        if (!message || !selectedFile)
+            return alert('Please select a file and enter a message!');
+        setChatMessages([
+            ...chatMessages,
+            {
+                text: message,
+                sender: 'user',
+            },
+        ]);
+        return getSearchResult(message);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
+        }
+    };
+
+    const getSearchResult = async (message: string) => {
+        try {
+            setSearching(true);
+            const payload = {
+                document_id: selectedFile,
+                question: message,
+            };
+            const r = await axios.post(
+                `${API_ROUTES.DOCUMENTS}/search`,
+                payload
+            );
+            const result = r.data;
+            const finalResult = [
+                ...chatMessages,
+                { text: result.answer, sender: 'bot' as const },
+            ];
+            console.log('finalResult', finalResult);
+            setChatMessages(finalResult);
+            setSearching(false);
+        } catch (err) {
+            setSearching(false);
+            setChatMessages([
+                ...chatMessages,
+                {
+                    text: 'Something went wrong!',
+                    sender: 'bot',
+                },
+            ]);
+        } finally {
         }
     };
 
@@ -155,12 +199,12 @@ export default function ChatPDFLayout() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {messages.length === 0 ? (
+                    {chatMessages.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center mt-8">
                             Start a conversation about your documents
                         </p>
                     ) : (
-                        messages.map((msg, index) => (
+                        chatMessages.map((msg, index) => (
                             <div
                                 key={index}
                                 className={`flex ${
@@ -181,21 +225,23 @@ export default function ChatPDFLayout() {
                             </div>
                         ))
                     )}
+                    {searching && (
+                        <div className="text-xs text-center">Searching...</div>
+                    )}
                 </div>
 
                 <div className="p-4 border-t border-gray-200">
                     <div className="flex gap-2">
                         <input
+                            onKeyDown={handleKeyDown}
                             type="text"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            onKeyPress={(e) =>
-                                e.key === 'Enter' && handleSendMessage()
-                            }
                             placeholder="Ask about your documents..."
                             className="flex-1 px-3 py-2 bg-background border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring text-foreground placeholder:text-muted-foreground"
                         />
                         <button
+                            disabled={searching}
                             onClick={handleSendMessage}
                             className="px-3 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                         >
