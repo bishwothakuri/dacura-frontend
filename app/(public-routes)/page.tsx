@@ -1,13 +1,16 @@
-import { APP_PATHS } from '@/constants/api';
-import Link from 'next/link';
+import { APP_PATHS } from "@/constants/api";
+import Link from "next/link";
+import Hero from "@/sections/Hero";
+import Features from "@/sections/Feature";
 
 export default function Home() {
-    return (
-        <div className="px-20 py-50 text-center">
-            <h3>Hello World!</h3>
-            <Link className="text-blue-400" href={APP_PATHS.USERS}>
-                See app users
-            </Link>
-        </div>
-    );
+  return (
+    <main className="bg-white">
+      {" "}
+      {/* Ensure background is white */}
+      <Hero />
+      <Features />
+      {/* Footer will go here */}
+    </main>
+  );
 }
