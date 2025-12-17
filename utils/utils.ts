@@ -1,3 +1,7 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+
 // format date to yyyy-mm-dd
 export const formatDate = (date: Date) => {
     const year = date.getFullYear();
@@ -5,3 +9,9 @@ export const formatDate = (date: Date) => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
+
+
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
+
