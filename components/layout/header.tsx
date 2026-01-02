@@ -11,7 +11,7 @@ export function Header() {
   ];
 
   return (
-    <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="glass-pill w-full max-w-5xl h-14 px-1.5 flex items-center justify-between transition-all duration-300 hover:bg-white/80">
         {/* LOGO */}
         <div className="pl-6">

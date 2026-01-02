@@ -33,7 +33,10 @@ export default function RootLayout({
       >
         <Header />
         <Providers>
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          {/* Add this <main> wrapper */}
+          <main className="min-h-screen flex flex-col">
+            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          </main>
         </Providers>
       </body>
     </html>
